@@ -1,0 +1,80 @@
+<?php
+class Api
+{
+    const API_URL = 'http://domain.com/api/v2'; // API URL/Replace reseller domain
+    const API_TOKEN = ''; // Your API token
+
+    public function order($data) { // add order
+        $post = array_merge([
+            'api_token' => self::API_TOKEN,
+            'action' => 'add'
+        ], $data);
+
+        return json_decode($this->connect($post));
+    }
+
+    public function status($order_id) { // get order status
+        return json_decode($this->connect([
+            'api_token' => self::API_TOKEN,
+            'action' => 'status',
+            'order' => $order_id
+        ]));
+    }
+
+    public function balance() { // get balance
+        return json_decode($this->connect([
+            'api_token' => self::API_TOKEN,
+            'action' => 'balance',
+        ]));
+    }
+
+   public function packages() { // get packages list
+        return json_decode($this->connect([
+            'api_token' => self::API_TOKEN,
+            'action' => 'packages',
+        ]));
+    }
+
+    private function connect($post) {
+        $_post = Array();
+        foreach ($post as $name => $value) {
+            $_post[$name] = urlencode($value);
+        }
+
+        $ch = curl_init(self::API_URL);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post));
+
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)');
+        $result = curl_exec($ch);
+        if (curl_errno($ch) != 0 && empty($result)) {
+            $result = false;
+        }
+        curl_close($ch);
+        return $result;
+    }
+}
+
+// Examples
+
+$api = new Api();
+
+// Fetch Packages
+$packages = $api->packages();
+
+// Check balance
+$balance = $api->balance();
+
+// Add order
+$order = $api->order(array('package' => 1, 'link' => 'http://example.com/link', 'quantity' => 100));
+
+// Add Custom comments order
+$order = $api->order(array('package' => 11, 'link' => 'http://example.com/link', 'quantity' => 4, 'comments' => "good pic\ngreat photo\n:)\n;)")); # Custom Comments
+
+// Check Order status
+$status = $api->status($order->order);
+
