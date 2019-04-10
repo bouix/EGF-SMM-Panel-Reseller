@@ -21,6 +21,7 @@
     Upload smm Folder with public_html like this 👇
 
 ![enter image description here](https://easygrowfast.com/public.png)
+
 **Second:**
 
     Create a database and upload database.sql from database > database.sql
